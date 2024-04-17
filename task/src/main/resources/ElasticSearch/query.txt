@@ -1,0 +1,14 @@
+//Es Query to find out top 10 CPT codes by cost(negotiated rates)
+GET test/_search
+{
+    "size": 10,
+    "_source": ["bCT", "bC", "negR"],
+    "query": {
+        "match_all": {}
+    },
+    "sort": [{
+        "negR": {
+            "order": "desc"
+        }
+    }]
+}
