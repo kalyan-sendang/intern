@@ -1,7 +1,10 @@
 package org.practise.crud.config;
 
 import org.apache.http.conn.ssl.TrustAllStrategy;
+import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.RestHighLevelClientBuilder;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
@@ -9,6 +12,7 @@ import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfigurat
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 import javax.net.ssl.SSLContext;
+import java.net.http.HttpClient;
 
 
 @Configuration
@@ -24,6 +28,8 @@ public class ElasticApplicationConfiguration extends ElasticsearchConfiguration 
                 .withBasicAuth("elastic", "cA2KnsCF2X8_fCLy1w7n")
                 .build();
     }
+
+
     private static SSLContext buildSSLContext(){
         try{
             return new SSLContextBuilder().loadTrustMaterial(null, TrustAllStrategy.INSTANCE).build();
