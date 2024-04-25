@@ -1,9 +1,14 @@
 package org.practise.crud.entity;
 
-import lombok.Data;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 @Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Document(indexName = "books")
 public class Book {
     @Id
@@ -16,5 +21,7 @@ public class Book {
     private String authorName;
 
     private String isbn;
+
+
 
 }

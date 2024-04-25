@@ -1,9 +1,12 @@
 package org.practise.crud.controller;
 
+import jakarta.validation.Valid;
+import org.practise.crud.Response.Response;
+import org.practise.crud.Response.SuccessResponse;
 import org.practise.crud.entity.Book;
+import org.practise.crud.entity.dto.BookRequestDto;
+import org.practise.crud.entity.dto.BookResponseDto;
 import org.practise.crud.service.BookService;
-import org.practise.crud.utils.ResponseWrapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,45 +20,32 @@ public class BookController {
     public BookController(BookService bookService) {
         this.bookService = bookService;
     }
-
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/query")
-    public List<Book> getBooksByAuthorAndTitle(@RequestParam(value = "title") String title, @RequestParam(value = "author") String author) {
-        return bookService.findByTitleAndAuthor(title, author);
+    public ResponseEntity<Response> getBooksByAuthorAndTitle(@Valid @RequestParam(value = "title") String title, @Valid @RequestParam(value = "author") String author) {
+        List<Book> newBooks =  bookService.findByTitleAndAuthor(title, author);
+        return ResponseEntity.ok().body(new SuccessResponse<>(newBooks));
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/{isbn}")
-    public Book getBookByIsbn(@PathVariable String isbn) {
-        return bookService.getByIsbn(isbn).orElseThrow(() -> new RuntimeException("The given isbn is invalid"));
+    public ResponseEntity<Response> getBookByIsbn(@PathVariable String isbn) {
+        BookResponseDto book = bookService.getByIsbn(isbn);
+        return ResponseEntity.ok().body(new SuccessResponse<>(book));
     }
 
     @GetMapping(value = "/get-all")
-    public ResponseEntity<ResponseWrapper<List<Book>>> getAll() {
-        ResponseWrapper<List<Book>> response = new ResponseWrapper<>();
-        try {
-            response.setSuccess(true);
-            response.setMessage("Books Retrieved Successfully");
-            response.setStatusCode(HttpStatus.OK.value());
-            response.setResponse(bookService.getAll());
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.setMessage(e.getMessage());
-            response.setSuccess(false);
-            response.setStatusCode(HttpStatus.NO_CONTENT.value());
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
-        }
+    public ResponseEntity<Response> getAll() {
+        List<Book> books = bookService.getAll();
+        return ResponseEntity.ok().body(new SuccessResponse<>(books));
     }
-
-    @ResponseStatus(HttpStatus.ACCEPTED)
     @PostMapping
-    public Book createBook(@RequestBody Book book) {
-        return bookService.create(book);
+    public ResponseEntity<Response> createBook(@Valid @RequestBody BookRequestDto book) {
+        Book newBook = bookService.create(book);
+        return ResponseEntity.ok().body(new SuccessResponse<>(newBook));
     }
-    @ResponseStatus(HttpStatus.OK)
     @PutMapping(value = "update/{id}")
-    public Book updateBook(@PathVariable String id, @RequestBody Book book){
-        return bookService.update(id, book);
+    public ResponseEntity<Response> updateBook(@PathVariable String id, @Valid @RequestBody BookRequestDto book){
+        Book updatedBook = bookService.update(id, book);
+        return ResponseEntity.ok().body(new SuccessResponse<>(updatedBook));
     }
 
 
