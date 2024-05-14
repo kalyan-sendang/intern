@@ -1,6 +1,5 @@
 package com.test.exceldata.service.excelDataImpl;
 
-import com.test.exceldata.entity.ExcelData;
 import com.test.exceldata.service.FileUploaderService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,25 +12,30 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.List;
+import java.util.Objects;
 
 @Service
 public class FileUploaderServiceImpl implements FileUploaderService {
-    @Value("${app.upload.dir:${user.home}}")
+    @Value("${app.upload.dir}")
     private String uploadDir;
-    public List<ExcelData> invoiceExcelReaderService() {
+    @Override
+    public Path uploadFile(MultipartFile file) {
+        if(Boolean.TRUE.equals(isValidExcelFile(file))) {
+            try {
+                Path copyPathLocation = Paths.get(uploadDir + File.separator + StringUtils.cleanPath(file.getOriginalFilename()));
+                System.out.println(copyPathLocation);
+                Files.copy(file.getInputStream(), copyPathLocation, StandardCopyOption.REPLACE_EXISTING);
+                return copyPathLocation;
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Could not store file " + file.getOriginalFilename()
+                        + ". Please try again!");
+            }
+        }
         return null;
     }
-    @Override
-    public void uploadFile(MultipartFile file) {
-        try{
-            Path copyPathLocation = Paths.get(uploadDir+ File.separator + StringUtils.cleanPath(file.getOriginalFilename()));
-            Files.copy(file.getInputStream(), copyPathLocation, StandardCopyOption.REPLACE_EXISTING);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Could not store file " + file.getOriginalFilename()
-                    + ". Please try again!");
-        }
+    public static Boolean isValidExcelFile(MultipartFile file){
+        return Objects.equals(file.getContentType(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" );
     }
 }
